@@ -8,7 +8,7 @@ dataset_num = [1 2 3 4 5 6 7 8 9 10 11 12 13];
 
 % define the range from start and end dataset 
 start_dataset = 1;
-end_of_dataset = 2;
+end_of_dataset = 1;
 
 % definig the number of file for cv
 num_of_file = 1;
@@ -74,12 +74,13 @@ for d=start_dataset:end_of_dataset
                     clear SvmOut bias lambda SVs_coeff SVs_labels support_vect_pattern_set
                     
                     %% training function
-                    [SvmOut,bias,alpha,lambda] = Train_Fun_SVM(C_plus,...
+                    [SvmOut,bias,x,lambda] = Train_Fun_SVM(C_param,C_plus,...
                         C_minus,Sigma_param,cv_train_matrix,...
                         cv_train_label,MAxIter);
                     
                     test_set = cv_test_matrix;
                     actual_test_labels = cv_test_label;
+                    
                     support_vect_pattern_set = SvmOut.SVs_pattern_set;
                     SVs_coeff = SvmOut.SVs_coeff;
                     SVs_labels = SvmOut.labels;
@@ -113,55 +114,55 @@ for d=start_dataset:end_of_dataset
     best_S(d) = mean([per_file_S_value_for_per_dataset{:,d}]);
 end
 
-for d=start_dataset:end_of_dataset
-    dataset(dataset_num(d)) = benchmark_data.(field_names{dataset_num(d)});
-    
-    for a=1:size(dataset(d).train, 1)
-        train_inst_matrix_13 {a,d} = dataset(d).x(dataset(d).train(a,:),:);
-        train_inst_label_vector_13 {a,d} = dataset(d).t(dataset(d).train(a,:),:);
-        test_inst_matrix_13 {a,d} = dataset(d).x(dataset(d).test(a,:),:);
-        test_inst_label_vector_13 {a,d} = dataset(d).t(dataset(d).test(a,:),:);
-        
-        train_matrix= train_inst_matrix_13{a,d};
-        train_label_vector= train_inst_label_vector_13{a,d};
-        test_matrix=test_inst_matrix_13{a,d};
-        test_label_vector=test_inst_label_vector_13{a,d};
-        
-        c = best_C(d);
-        s = best_S(d);
-        MAxIter = 10000;
-        [SvmOut,bias,alpha,lambda] = Train_Fun_SVM(c,...
-            c,s,train_matrix,train_label_vector,MAxIter);
-        
-        test_set = test_matrix;
-        actual_test_labels = test_label_vector;
-        
-        train_set = train_matrix;
-        actual_train_labels = train_label_vector;
-        
-        support_vect_pattern_set = SvmOut.SVs_pattern_set;
-        SVs_coeff = SvmOut.SVs_coeff;
-        SVs_labels = SvmOut.labels;
-        gamma = 1/(2*s^2);
-        per_file_SvmOut_for_per_data{a,d} = SvmOut;
-        per_file_num_of_SVs_for_per_data{a,d} = SvmOut.number;
-        per_file_bias_for_per_data{a,d} = bias;
-        per_file_lambda_for_per_data{a,d} = lambda.eqlin;
-        
-        [FP_rate_test,FN_rate_test,TotEr_rate_test,TruePred_rate_test,...
-            tot_test_pattern_test] = Test_Fun_SVM(test_set,actual_test_labels,...
-            support_vect_pattern_set,SVs_coeff,SVs_labels,gamma,bias);
-        
-        [FP_rate_train,FN_rate_train,TotEr_rate_train,TruePred_rate_train,...
-            tot_test_pattern_train] = Test_Fun_SVM(train_set,actual_train_labels,...
-            support_vect_pattern_set,SVs_coeff,SVs_labels,gamma,bias);
-        
-        test_acc{a,d} = TruePred_rate_test;
-        train_acc{a,d} = TruePred_rate_train;
-    end
-    per_dataset_test_acc(d) = mean([test_acc{:,d}]);
-    per_dataset_train_acc(d) = mean([train_acc{:,d}]);
-    per_dataset_test_std(d) = std([test_acc{:,d}]);
-    per_dataset_train_std(d) = std([train_acc{:,d}]);
-    per_dataset_mean_SVs(d) = mean([per_file_num_of_SVs_for_per_data{:,d}]);
-end
+% for d=start_dataset:end_of_dataset
+%     dataset(dataset_num(d)) = benchmark_data.(field_names{dataset_num(d)});
+%     
+%     for a=1:size(dataset(d).train, 1)
+%         train_inst_matrix_13 {a,d} = dataset(d).x(dataset(d).train(a,:),:);
+%         train_inst_label_vector_13 {a,d} = dataset(d).t(dataset(d).train(a,:),:);
+%         test_inst_matrix_13 {a,d} = dataset(d).x(dataset(d).test(a,:),:);
+%         test_inst_label_vector_13 {a,d} = dataset(d).t(dataset(d).test(a,:),:);
+%         
+%         train_matrix= train_inst_matrix_13{a,d};
+%         train_label_vector= train_inst_label_vector_13{a,d};
+%         test_matrix=test_inst_matrix_13{a,d};
+%         test_label_vector=test_inst_label_vector_13{a,d};
+%         
+%         c = best_C(d);
+%         s = best_S(d);
+%         MAxIter = 10000;
+%         [SvmOut,bias,alpha,lambda] = Train_Fun_SVM(c,...
+%             c,s,train_matrix,train_label_vector,MAxIter);
+%         
+%         test_set = test_matrix;
+%         actual_test_labels = test_label_vector;
+%         
+%         train_set = train_matrix;
+%         actual_train_labels = train_label_vector;
+%         
+%         support_vect_pattern_set = SvmOut.SVs_pattern_set;
+%         SVs_coeff = SvmOut.SVs_coeff;
+%         SVs_labels = SvmOut.labels;
+%         gamma = 1/(2*s^2);
+%         per_file_SvmOut_for_per_data{a,d} = SvmOut;
+%         per_file_num_of_SVs_for_per_data{a,d} = SvmOut.number;
+%         per_file_bias_for_per_data{a,d} = bias;
+%         per_file_lambda_for_per_data{a,d} = lambda.eqlin;
+%         
+%         [FP_rate_test,FN_rate_test,TotEr_rate_test,TruePred_rate_test,...
+%             tot_test_pattern_test] = Test_Fun_SVM(test_set,actual_test_labels,...
+%             support_vect_pattern_set,SVs_coeff,SVs_labels,gamma,bias);
+%         
+%         [FP_rate_train,FN_rate_train,TotEr_rate_train,TruePred_rate_train,...
+%             tot_test_pattern_train] = Test_Fun_SVM(train_set,actual_train_labels,...
+%             support_vect_pattern_set,SVs_coeff,SVs_labels,gamma,bias);
+%         
+%         test_acc{a,d} = TruePred_rate_test;
+%         train_acc{a,d} = TruePred_rate_train;
+%     end
+%     per_dataset_test_acc(d) = mean([test_acc{:,d}]);
+%     per_dataset_train_acc(d) = mean([train_acc{:,d}]);
+%     per_dataset_test_std(d) = std([test_acc{:,d}]);
+%     per_dataset_train_std(d) = std([train_acc{:,d}]);
+%     per_dataset_mean_SVs(d) = mean([per_file_num_of_SVs_for_per_data{:,d}]);
+% end
