@@ -1,0 +1,6 @@
+function [krnl] = fn_rbf_kernel...
+    (pattern_i_matrix,i,pattern_j_matrix,j,Sigma_param)
+gamma = 1/(2*(Sigma_param^2));
+distance=(pattern_i_matrix(i,:) -pattern_j_matrix(j,:))*...
+            (pattern_i_matrix(i,:) -pattern_j_matrix(j,:))';
+krnl = exp(-gamma*distance);
